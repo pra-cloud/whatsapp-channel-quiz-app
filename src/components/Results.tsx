@@ -131,7 +131,8 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
   };
 
   const channelUrl = 'https://www.whatsapp.com/channel/0029Vb6GcAx42DccXkOfoW1h';
-  const shareText = `I just scored ${score}% on the ${quiz.title} quiz by Learn AI | Devops | Cloud! 🚀 Test your skills too!\n\nJoin the channel: ${channelUrl}`;
+  const appUrl = window.location.origin;
+  const shareText = `I just scored ${score}% on the ${quiz.title} quiz by Learn AI | Devops | Cloud! 🚀 Test your skills too!\n\nTake the quiz: ${appUrl}\n\nJoin the channel: ${channelUrl}`;
 
   // Only use native Web Share API on actual mobile devices (Android/iOS)
   // On Windows/Mac desktop, native share opens useless OS share sheet (Nearby Sharing, OneNote, etc.)
@@ -159,17 +160,18 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
         }
       }
 
-      // Desktop (Windows/Mac): download certificate, copy text, show guided modal
+      // Desktop (Windows/Mac): download certificate, copy text, open WhatsApp with pre-filled text
       await handleDownload();
       await copyToClipboard(shareText);
+      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
       setShareModal({
         platform: 'whatsapp',
         steps: [
           { done: true, label: 'Certificate image downloaded ✅' },
           { done: true, label: 'Share text with channel link copied ✅' },
-          { done: false, label: 'Open WhatsApp on your phone → Go to Status → Attach the image & paste the text' },
+          { done: false, label: 'Click the button below to open WhatsApp → Pick a contact or group → Attach the downloaded certificate image' },
         ],
-        platformUrl: 'https://web.whatsapp.com',
+        platformUrl: waUrl,
       });
     } finally {
       setSharing(null);
@@ -198,17 +200,18 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
         }
       }
 
-      // Desktop (Windows/Mac): download certificate, copy text, show guided modal
+      // Desktop (Windows/Mac): download certificate, copy text, open LinkedIn share
       await handleDownload();
       await copyToClipboard(shareText);
+      const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(appUrl)}`;
       setShareModal({
         platform: 'linkedin',
         steps: [
           { done: true, label: 'Certificate image downloaded ✅' },
           { done: true, label: 'Share text with channel link copied ✅' },
-          { done: false, label: 'Click below to open LinkedIn → Click "Start a post" → Attach the image & paste text (Ctrl+V)' },
+          { done: false, label: 'Click the button below → A LinkedIn post window will open → Paste your text (Ctrl+V) and attach the downloaded certificate image' },
         ],
-        platformUrl: 'https://www.linkedin.com/feed/?shareActive=true',
+        platformUrl: linkedinUrl,
       });
     } finally {
       setSharing(null);
@@ -311,8 +314,8 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
 
             <p className="share-modal-hint">
               {shareModal.platform === 'whatsapp'
-                ? '💡 Tip: WhatsApp Web doesn\'t support Status updates. Open WhatsApp on your phone or desktop app → go to Status → tap the camera/pencil icon → attach the downloaded certificate and paste the text!'
-                : '💡 Tip: On LinkedIn, click "Start a post" → click the image icon 🖼️ to attach your downloaded certificate → paste the text (Ctrl+V) and post!'}
+                ? '💡 Tip: The button will open WhatsApp with the text pre-filled. Just pick a contact/group and attach the downloaded certificate image! You can also share it to your WhatsApp Status.'
+                : '💡 Tip: After clicking the button, LinkedIn will open a share dialog. Add some personal thoughts, attach the downloaded certificate image, and post!'}
             </p>
           </div>
         </div>
