@@ -3,6 +3,7 @@ import html2canvas from 'html2canvas';
 import confetti from 'canvas-confetti';
 import { Download, Share2, RefreshCcw, Globe, CheckCircle, Loader2, X, Copy, ExternalLink, Image, ClipboardList } from 'lucide-react';
 import type { Quiz } from '../data/quizzes';
+import { trackCertificateDownloaded, trackCertificateShared, trackChannelJoinClicked } from '../data/analytics';
 import Certificate from './Certificate';
 import Leaderboard from './Leaderboard';
 import './Results.css';
@@ -77,6 +78,7 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
       link.href = image;
       link.download = `${userName.replace(/\s+/g, '_')}_${quiz.topic}_Badge.png`;
       link.click();
+      trackCertificateDownloaded(quiz.title, userName);
     } catch (err) {
       console.error('Failed to generate certificate image', err);
       showToast('Failed to generate certificate. Please try again.');
@@ -117,6 +119,7 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
         if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({ files: [file], text: shareText });
+            trackCertificateShared('whatsapp', quiz.title);
             return;
           } catch (err: unknown) {
             if (err instanceof Error && err.name === 'AbortError') return;
@@ -124,6 +127,7 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
         }
         // Step 2: Fallback - save image + open WhatsApp directly via deep link
         await handleDownload();
+        trackCertificateShared('whatsapp', quiz.title);
         showToast('📸 Certificate saved! Attach it in the WhatsApp chat.', 6000);
         setTimeout(() => {
           window.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
@@ -158,6 +162,7 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
         if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({ files: [file], text: shareText });
+            trackCertificateShared('linkedin', quiz.title);
             return;
           } catch (err: unknown) {
             if (err instanceof Error && err.name === 'AbortError') return;
@@ -165,6 +170,7 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
         }
         // Step 2: Fallback - save image + open LinkedIn share page
         await handleDownload();
+        trackCertificateShared('linkedin', quiz.title);
         showToast('📸 Certificate saved! Attach it in your LinkedIn post.', 6000);
         setTimeout(() => {
           window.location.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(appUrl)}`;
@@ -265,7 +271,7 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
       <div className="cta-banner">
         <h3>Don't miss the next challenge! 🔥</h3>
         <p>Join our WhatsApp channel to get notified instantly.</p>
-        <button className="cta-join-btn" onClick={() => window.open(channelUrl, '_blank')}>
+        <button className="cta-join-btn" onClick={() => { trackChannelJoinClicked(); window.open(channelUrl, '_blank'); }}>
           <Share2 size={18} /> Join Channel Now
         </button>
       </div>

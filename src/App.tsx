@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { quizzes } from './data/quizzes';
 import type { Quiz } from './data/quizzes';
 import { addLeaderboardEntry, updateProgress, getProgress } from './data/storage';
+import { trackQuizStarted, trackQuizCompleted } from './data/analytics';
 import Landing from './components/Landing';
 import QuizEngine from './components/QuizEngine';
 import Results from './components/Results';
@@ -33,6 +34,7 @@ function App() {
     setSelectedOptions({});
     setRank(0);
     setView('quiz');
+    trackQuizStarted(quiz.title, quiz.topic, quiz.difficulty);
   };
 
   const handleFinishQuiz = (finalScore: number, finalTime: number, options: Record<number, number>) => {
@@ -40,6 +42,9 @@ function App() {
     setTimeTaken(finalTime);
     setSelectedOptions(options);
     setView('results');
+    if (selectedQuiz) {
+      trackQuizCompleted(selectedQuiz.title, selectedQuiz.topic, finalScore, finalTime);
+    }
   };
 
   const handleSetUserName = (name: string) => {
