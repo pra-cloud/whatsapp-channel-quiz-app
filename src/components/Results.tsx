@@ -31,57 +31,34 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
   const [sharing, setSharing] = useState<string | null>(null);
   const [shareModal, setShareModal] = useState<ShareModal>(null);
 
-  const showToast = (message: string) => {
+  const showToast = (message: string, duration = 5000) => {
     setToast(message);
-    setTimeout(() => setToast(null), 4000);
+    setTimeout(() => setToast(null), duration);
   };
 
   useEffect(() => {
     if (isPass) {
       const duration = 3000;
       const end = Date.now() + duration;
-
       const frame = () => {
-        confetti({
-          particleCount: 5,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 },
-          colors: ['#3b82f6', '#8b5cf6', '#10b981']
-        });
-        confetti({
-          particleCount: 5,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 },
-          colors: ['#3b82f6', '#8b5cf6', '#10b981']
-        });
-
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
+        confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#3b82f6', '#8b5cf6', '#10b981'] });
+        confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#3b82f6', '#8b5cf6', '#10b981'] });
+        if (Date.now() < end) requestAnimationFrame(frame);
       };
       frame();
     }
   }, [isPass]);
 
-  // Generate certificate as a File object for native sharing
+  // Generate certificate as a File object
   const getCertificateFile = async (): Promise<File | null> => {
     if (!certificateRef.current) return null;
     try {
-      const canvas = await html2canvas(certificateRef.current, {
-        scale: 2,
-        backgroundColor: '#0f172a',
-        useCORS: true
-      });
+      const canvas = await html2canvas(certificateRef.current, { scale: 2, backgroundColor: '#0f172a', useCORS: true });
       return new Promise((resolve) => {
         canvas.toBlob((blob) => {
           if (blob) {
-            const fileName = `${userName.replace(/\s+/g, '_')}_${quiz.topic}_Badge.png`;
-            resolve(new File([blob], fileName, { type: 'image/png' }));
-          } else {
-            resolve(null);
-          }
+            resolve(new File([blob], `${userName.replace(/\s+/g, '_')}_${quiz.topic}_Badge.png`, { type: 'image/png' }));
+          } else resolve(null);
         }, 'image/png');
       });
     } catch (err) {
@@ -93,14 +70,8 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
   // Download certificate as PNG
   const handleDownload = async () => {
     if (!certificateRef.current) return;
-    
     try {
-      const canvas = await html2canvas(certificateRef.current, {
-        scale: 2,
-        backgroundColor: '#0f172a',
-        useCORS: true
-      });
-      
+      const canvas = await html2canvas(certificateRef.current, { scale: 2, backgroundColor: '#0f172a', useCORS: true });
       const image = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = image;
@@ -134,44 +105,43 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
   const appUrl = window.location.origin;
   const shareText = `I just scored ${score}% on the ${quiz.title} quiz by Learn AI | Devops | Cloud! 🚀 Test your skills too!\n\nTake the quiz: ${appUrl}\n\nJoin the channel: ${channelUrl}`;
 
-  // Only use native Web Share API on actual mobile devices (Android/iOS)
-  // On Windows/Mac desktop, native share opens useless OS share sheet (Nearby Sharing, OneNote, etc.)
   const isMobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
 
-  // ─── WhatsApp Status Share ───
+  // ─── WhatsApp Share ───
   const handleWhatsAppShare = async () => {
     setSharing('whatsapp');
     try {
-      // Mobile ONLY: use native share with certificate image
       if (isMobile) {
+        // Step 1: Try native share with certificate image (opens share sheet with WhatsApp prominent)
         const file = await getCertificateFile();
         if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
-            await navigator.share({
-              files: [file],
-              title: `${quiz.title} Quiz Results`,
-              text: shareText,
-            });
+            await navigator.share({ files: [file], text: shareText });
             return;
           } catch (err: unknown) {
             if (err instanceof Error && err.name === 'AbortError') return;
-            console.log('Native share cancelled/failed', err);
           }
         }
+        // Step 2: Fallback - save image + open WhatsApp directly via deep link
+        await handleDownload();
+        showToast('📸 Certificate saved! Attach it in the WhatsApp chat.', 6000);
+        setTimeout(() => {
+          window.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+        }, 800);
+        return;
       }
 
-      // Desktop (Windows/Mac): download certificate, copy text, open WhatsApp with pre-filled text
+      // Desktop: download + copy + modal
       await handleDownload();
       await copyToClipboard(shareText);
-      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
       setShareModal({
         platform: 'whatsapp',
         steps: [
           { done: true, label: 'Certificate image downloaded ✅' },
-          { done: true, label: 'Share text with channel link copied ✅' },
-          { done: false, label: 'Click the button below to open WhatsApp → Pick a contact or group → Attach the downloaded certificate image' },
+          { done: true, label: 'Share text copied to clipboard ✅' },
+          { done: false, label: 'Click below to open WhatsApp → Pick a contact → Attach the certificate image' },
         ],
-        platformUrl: waUrl,
+        platformUrl: `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`,
       });
     } finally {
       setSharing(null);
@@ -182,43 +152,43 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
   const handleLinkedInShare = async () => {
     setSharing('linkedin');
     try {
-      // Mobile ONLY: use native share with certificate image
       if (isMobile) {
+        // Step 1: Try native share with certificate image (LinkedIn appears in share sheet)
         const file = await getCertificateFile();
         if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
-            await navigator.share({
-              files: [file],
-              title: `${quiz.title} Quiz Results`,
-              text: shareText,
-            });
+            await navigator.share({ files: [file], text: shareText });
             return;
           } catch (err: unknown) {
             if (err instanceof Error && err.name === 'AbortError') return;
-            console.log('Native share cancelled/failed', err);
           }
         }
+        // Step 2: Fallback - save image + open LinkedIn share page
+        await handleDownload();
+        showToast('📸 Certificate saved! Attach it in your LinkedIn post.', 6000);
+        setTimeout(() => {
+          window.location.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(appUrl)}`;
+        }, 800);
+        return;
       }
 
-      // Desktop (Windows/Mac): download certificate, copy text, open LinkedIn share
+      // Desktop: download + copy + modal
       await handleDownload();
       await copyToClipboard(shareText);
-      const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(appUrl)}`;
       setShareModal({
         platform: 'linkedin',
         steps: [
           { done: true, label: 'Certificate image downloaded ✅' },
-          { done: true, label: 'Share text with channel link copied ✅' },
-          { done: false, label: 'Click the button below → A LinkedIn post window will open → Paste your text (Ctrl+V) and attach the downloaded certificate image' },
+          { done: true, label: 'Share text copied to clipboard ✅' },
+          { done: false, label: 'Click below to open LinkedIn → Paste text (Ctrl+V) → Attach the certificate image' },
         ],
-        platformUrl: linkedinUrl,
+        platformUrl: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(appUrl)}`,
       });
     } finally {
       setSharing(null);
     }
   };
 
-  // Re-copy text from modal
   const handleRecopy = async () => {
     await copyToClipboard(shareText);
     showToast('✅ Text copied to clipboard again!');
@@ -230,22 +200,8 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
         <div className="glass-panel name-prompt-panel">
           <h2>You scored {score}%!</h2>
           <p>Enter your name to generate your certificate.</p>
-          <form 
-            onSubmit={(e) => {
-              e.preventDefault();
-              const fd = new FormData(e.currentTarget);
-              setUserName(fd.get('name') as string);
-            }}
-            className="name-form"
-          >
-            <input 
-              name="name" 
-              type="text" 
-              placeholder="Your Full Name" 
-              required 
-              className="name-input"
-              maxLength={40}
-            />
+          <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.currentTarget); setUserName(fd.get('name') as string); }} className="name-form">
+            <input name="name" type="text" placeholder="Your Full Name" required className="name-input" maxLength={40} />
             <button type="submit" className="button-primary">Generate Certificate</button>
           </form>
         </div>
@@ -255,7 +211,6 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
 
   return (
     <div className="container results-container">
-      {/* Toast notification */}
       {toast && (
         <div className="share-toast">
           <CheckCircle size={18} />
@@ -263,60 +218,35 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
         </div>
       )}
 
-      {/* Desktop Share Modal */}
       {shareModal && (
         <div className="share-modal-overlay" onClick={() => setShareModal(null)}>
           <div className="share-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="share-modal-close" onClick={() => setShareModal(null)}>
-              <X size={20} />
-            </button>
-
+            <button className="share-modal-close" onClick={() => setShareModal(null)}><X size={20} /></button>
             <div className="share-modal-header">
               <div className={`share-modal-icon ${shareModal.platform}`}>
-                {shareModal.platform === 'whatsapp' ? <Share2 size={28} /> : <Globe size={28} />}
+                {shareModal.platform === 'whatsapp' ? <Share2 size={24} /> : <Globe size={24} />}
               </div>
-              <h3>Share on {shareModal.platform === 'whatsapp' ? 'WhatsApp Status' : 'LinkedIn'}</h3>
+              <h3>Share on {shareModal.platform === 'whatsapp' ? 'WhatsApp' : 'LinkedIn'}</h3>
               <p className="share-modal-subtitle">Almost there! Follow these steps:</p>
             </div>
-
             <div className="share-modal-steps">
               {shareModal.steps.map((step, i) => (
                 <div key={i} className={`share-step ${step.done ? 'done' : 'pending'}`}>
                   <div className="share-step-number">
-                    {step.done ? <CheckCircle size={20} /> : <span>{i + 1}</span>}
+                    {step.done ? <CheckCircle size={18} /> : <span>{i + 1}</span>}
                   </div>
                   <span className="share-step-label">{step.label}</span>
                 </div>
               ))}
             </div>
-
             <div className="share-modal-actions">
-              <button className="share-modal-secondary" onClick={handleRecopy}>
-                <Copy size={16} />
-                Re-copy Text
-              </button>
-              <button className="share-modal-secondary" onClick={handleDownload}>
-                <Image size={16} />
-                Re-download Certificate
-              </button>
+              <button className="share-modal-secondary" onClick={handleRecopy}><Copy size={14} /> Re-copy Text</button>
+              <button className="share-modal-secondary" onClick={handleDownload}><Image size={14} /> Re-download</button>
             </div>
-
-            <a
-              href={shareModal.platformUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`share-modal-cta ${shareModal.platform}`}
-              onClick={() => setShareModal(null)}
-            >
-              <ExternalLink size={20} />
-              Open {shareModal.platform === 'whatsapp' ? 'WhatsApp Web' : 'LinkedIn'}
+            <a href={shareModal.platformUrl} target="_blank" rel="noopener noreferrer" className={`share-modal-cta ${shareModal.platform}`} onClick={() => setShareModal(null)}>
+              <ExternalLink size={18} />
+              Open {shareModal.platform === 'whatsapp' ? 'WhatsApp' : 'LinkedIn'}
             </a>
-
-            <p className="share-modal-hint">
-              {shareModal.platform === 'whatsapp'
-                ? '💡 Tip: The button will open WhatsApp with the text pre-filled. Just pick a contact/group and attach the downloaded certificate image! You can also share it to your WhatsApp Status.'
-                : '💡 Tip: After clicking the button, LinkedIn will open a share dialog. Add some personal thoughts, attach the downloaded certificate image, and post!'}
-            </p>
           </div>
         </div>
       )}
@@ -335,49 +265,34 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
       <div className="cta-banner">
         <h3>Don't miss the next challenge! 🔥</h3>
         <p>Join our WhatsApp channel to get notified instantly.</p>
-        <button 
-          className="cta-join-btn"
-          onClick={() => window.open('https://www.whatsapp.com/channel/0029Vb6GcAx42DccXkOfoW1h', '_blank')}
-        >
-          <Share2 size={18} />
-          Join Channel Now
+        <button className="cta-join-btn" onClick={() => window.open(channelUrl, '_blank')}>
+          <Share2 size={18} /> Join Channel Now
         </button>
       </div>
 
-      {/* Rank callout */}
       {rank > 0 && rank <= 3 && (
-        <div className="rank-callout">
-          🏆 You ranked <strong>#{rank}</strong> on this quiz!
-        </div>
+        <div className="rank-callout">🏆 You ranked <strong>#{rank}</strong> on this quiz!</div>
       )}
 
-      {/* Leaderboard */}
       <Leaderboard quizId={quiz.id} quizTitle={quiz.title} highlightName={userName} />
 
       <div className="actions-grid">
         <button className="button-primary action-btn" onClick={handleDownload}>
-          <Download size={20} />
-          <span>Download Badge</span>
+          <Download size={18} /> <span>Download Badge</span>
         </button>
-
         <button className="button-secondary action-btn review-btn" onClick={onReviewAnswers}>
-          <ClipboardList size={20} />
-          <span>Review Answers</span>
+          <ClipboardList size={18} /> <span>Review Answers</span>
         </button>
-        
         <button className="button-secondary action-btn whatsapp-btn" onClick={handleWhatsAppShare} disabled={sharing !== null}>
-          {sharing === 'whatsapp' ? <Loader2 size={20} className="spin-icon" /> : <Share2 size={20} />}
-          <span>{sharing === 'whatsapp' ? 'Preparing...' : 'WhatsApp Status'}</span>
+          {sharing === 'whatsapp' ? <Loader2 size={18} className="spin-icon" /> : <Share2 size={18} />}
+          <span>{sharing === 'whatsapp' ? 'Preparing...' : 'Share on WhatsApp'}</span>
         </button>
-
         <button className="button-secondary action-btn linkedin-btn" onClick={handleLinkedInShare} disabled={sharing !== null}>
-          {sharing === 'linkedin' ? <Loader2 size={20} className="spin-icon" /> : <Globe size={20} />}
+          {sharing === 'linkedin' ? <Loader2 size={18} className="spin-icon" /> : <Globe size={18} />}
           <span>{sharing === 'linkedin' ? 'Preparing...' : 'Share on LinkedIn'}</span>
         </button>
-
         <button className="button-secondary action-btn restart-btn" onClick={onRestart}>
-          <RefreshCcw size={20} />
-          <span>Try Another Quiz</span>
+          <RefreshCcw size={18} /> <span>Try Another Quiz</span>
         </button>
       </div>
     </div>
