@@ -26,20 +26,36 @@
   padding: 0;
 }
 
+html {
+  /* Prevent text size adjust on orientation change */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   font-family: var(--font-family);
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
-  /* Add a subtle gradient background mesh effect */
+  /* Subtle gradient background mesh */
   background-image: 
     radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
     radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
     radial-gradient(at 100% 0%, hsla(339,49%,30%,0.1) 0, transparent 50%);
   background-attachment: fixed;
+  /* Smooth scrolling */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure root grows to fill */
+#root {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 button {
@@ -49,11 +65,13 @@ button {
   background: none;
   color: inherit;
   transition: all var(--transition-normal);
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
 }
 
 a {
   color: inherit;
   text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Glassmorphism Utilities */
@@ -73,13 +91,14 @@ a {
   background-clip: text;
 }
 
+/* ─── Buttons ─── */
 .button-primary {
   background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
   color: white;
-  padding: 12px 24px;
+  padding: 10px 20px;
   border-radius: var(--border-radius-md);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
 }
 
@@ -95,10 +114,10 @@ a {
 .button-secondary {
   background: var(--bg-secondary);
   color: var(--text-primary);
-  padding: 12px 24px;
+  padding: 10px 20px;
   border-radius: var(--border-radius-md);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   border: 1px solid var(--glass-border);
 }
 
@@ -106,15 +125,25 @@ a {
   background: rgba(255, 255, 255, 0.1);
 }
 
+/* ─── Container ─── */
 .container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0.75rem;
   width: 100%;
 }
 
-@media (max-width: 600px) {
+/* ═══════════════════════════════════════════
+   Desktop / Tablet overrides
+   ═══════════════════════════════════════════ */
+@media (min-width: 481px) {
   .container {
-    padding: 1rem;
+    padding: 2rem;
+  }
+
+  .button-primary,
+  .button-secondary {
+    padding: 12px 24px;
+    font-size: 1rem;
   }
 }

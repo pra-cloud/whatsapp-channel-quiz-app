@@ -16,6 +16,9 @@ export default function Certificate({ userName, quiz, score, timeTaken }: Certif
     year: 'numeric'
   });
 
+  // Use smaller QR on mobile
+  const qrSize = window.innerWidth <= 480 ? 44 : 56;
+
   return (
     <div className="certificate-container" id="certificate-node">
       <div className="certificate-border">
@@ -46,7 +49,7 @@ export default function Certificate({ userName, quiz, score, timeTaken }: Certif
             )}
           </div>
 
-          {/* Seal - sits between body and footer */}
+          {/* Seal badge - standalone centered */}
           <div className="cert-seal">
             <div className={`seal-inner ${quiz.topic.toLowerCase()}`}>
               <span className="seal-text">{quiz.topic}</span>
@@ -64,13 +67,13 @@ export default function Certificate({ userName, quiz, score, timeTaken }: Certif
               <div className="qr-wrapper">
                 <QRCodeSVG 
                   value="https://www.whatsapp.com/channel/0029Vb6GcAx42DccXkOfoW1h" 
-                  size={56} 
+                  size={qrSize} 
                   bgColor="#ffffff" 
                   fgColor="#0f172a" 
                   level="L" 
                 />
               </div>
-              <span className="qr-label">Scan to Join Channel!</span>
+              <span className="qr-label">Scan to Join!</span>
             </div>
           </div>
         </div>

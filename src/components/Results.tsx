@@ -332,15 +332,14 @@ export default function Results({ quiz, score, timeTaken, userName, setUserName,
         <Certificate userName={userName} quiz={quiz} score={score} timeTaken={timeTaken} />
       </div>
 
-      <div className="cta-banner" style={{ width: '100%', maxWidth: '600px', backgroundColor: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '12px', textAlign: 'center', marginBottom: '2rem', border: '1px solid rgba(37, 211, 102, 0.5)' }}>
-        <h3 style={{ marginBottom: '0.5rem', fontSize: '1.25rem', color: '#f8fafc' }}>Don't miss the next challenge! 🔥</h3>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>Join our WhatsApp channel to get notified instantly.</p>
+      <div className="cta-banner">
+        <h3>Don't miss the next challenge! 🔥</h3>
+        <p>Join our WhatsApp channel to get notified instantly.</p>
         <button 
-          className="button-primary" 
-          style={{ background: '#25D366', color: '#fff', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem', fontSize: '1.125rem', border: 'none', boxShadow: '0 4px 14px 0 rgba(37, 211, 102, 0.39)' }}
+          className="cta-join-btn"
           onClick={() => window.open('https://www.whatsapp.com/channel/0029Vb6GcAx42DccXkOfoW1h', '_blank')}
         >
-          <Share2 size={20} />
+          <Share2 size={18} />
           Join Channel Now
         </button>
       </div>
