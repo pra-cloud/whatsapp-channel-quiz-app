@@ -42,6 +42,7 @@
   text-align: center;
 }
 
+/* ─── Header ─── */
 .cert-header {
   display: flex;
   flex-direction: column;
@@ -63,8 +64,9 @@
   color: var(--text-secondary);
 }
 
+/* ─── Body ─── */
 .cert-body {
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
   width: 100%;
 }
 
@@ -133,52 +135,31 @@
   color: var(--accent-red);
 }
 
-.cert-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  width: 100%;
-  padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  position: relative;
-  /* Ensure enough bottom space for the seal on mobile */
-  min-height: 80px;
-}
-
-.cert-date, .cert-signature {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 150px;
-  flex-shrink: 0;
-}
-
-.cert-date-value, .cert-signature-value {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  padding-bottom: 0.25rem;
-  width: 100%;
-}
-
-.cert-signature-value {
-  font-family: 'Brush Script MT', cursive, sans-serif;
-  font-size: 1.75rem;
-}
-
-.cert-date-label, .cert-signature-label {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
+/* ─── Speedster Badge ─── */
+.speedster-badge {
+  margin-top: 1.5rem;
+  display: inline-block;
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  color: #fff;
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 1.125rem;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
 }
 
+.speedster-badge .star {
+  font-size: 1.25rem;
+}
+
+/* ─── Seal (standalone centered element between body and footer) ─── */
 .cert-seal {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  margin-bottom: 1.5rem;
 }
 
 .seal-inner {
@@ -220,54 +201,69 @@
   opacity: 0.8;
 }
 
+/* ─── Footer (date + QR only, side by side) ─── */
+.cert-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cert-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cert-date-value {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 0.375rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 0.25rem;
+}
+
+.cert-date-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 .cert-qr {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
   flex-shrink: 0;
 }
 
 .qr-wrapper {
-  padding: 0.5rem;
+  padding: 0.375rem;
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .qr-label {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   color: var(--accent-blue);
   font-weight: 700;
   text-transform: uppercase;
-}
-
-.speedster-badge {
-  margin-top: 1.5rem;
-  display: inline-block;
-  background: linear-gradient(135deg, #fbbf24, #d97706);
-  color: #fff;
-  padding: 0.5rem 1.5rem;
-  border-radius: 50px;
-  font-weight: 800;
-  font-size: 1.125rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
-}
-
-.speedster-badge .star {
-  font-size: 1.25rem;
+  letter-spacing: 0.5px;
 }
 
 /* ─── Mobile Responsive ─── */
 @media (max-width: 600px) {
   .certificate-container {
-    padding: 0.75rem;
-    border-radius: 12px;
+    padding: 0.625rem;
+    border-radius: 14px;
   }
 
   .certificate-border {
-    padding: 0.375rem;
+    padding: 0.3rem;
   }
 
   .certificate-inner {
@@ -275,140 +271,129 @@
   }
 
   .cert-header {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
   }
 
   .cert-logo {
-    height: 40px;
+    height: 36px;
     margin-bottom: 0.5rem;
   }
 
   .cert-channel {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     letter-spacing: 1px;
   }
 
   .cert-body {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
   }
 
   .cert-presented {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
   }
   
   .cert-name {
-    font-size: 1.75rem;
+    font-size: 1.6rem;
     margin-bottom: 0.75rem;
   }
 
   .cert-description {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
   }
 
   .cert-quiz-title {
-    font-size: 1.15rem;
-    margin-bottom: 1.25rem;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
   }
 
   .cert-score-section {
     gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 0.875rem;
   }
 
   .cert-score-label {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     letter-spacing: 0.5px;
   }
 
   .cert-score-value {
-    font-size: 1.125rem;
-  }
-
-  .cert-footer {
-    flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
-    padding-top: 1.25rem;
-    min-height: auto;
-  }
-
-  .cert-date {
-    width: auto;
-    order: 1;
-  }
-
-  .cert-date-value {
     font-size: 1rem;
-    text-align: center;
-  }
-
-  .cert-date-label {
-    font-size: 0.75rem;
-  }
-
-  .cert-seal {
-    order: 2;
-  }
-
-  .seal-inner {
-    width: 70px;
-    height: 70px;
-  }
-  
-  .seal-text {
-    font-size: 0.85rem;
-  }
-  
-  .seal-sub {
-    font-size: 0.6rem;
-    letter-spacing: 1px;
-  }
-
-  .cert-qr {
-    order: 3;
-  }
-
-  .qr-wrapper {
-    padding: 0.375rem;
-  }
-
-  .qr-label {
-    font-size: 0.65rem;
   }
 
   .speedster-badge {
-    margin-top: 1rem;
-    padding: 0.375rem 1rem;
-    font-size: 0.85rem;
+    margin-top: 0.75rem;
+    padding: 0.3rem 0.875rem;
+    font-size: 0.75rem;
     letter-spacing: 1px;
   }
 
   .speedster-badge .star {
-    font-size: 1rem;
+    font-size: 0.85rem;
+  }
+
+  /* Seal gets smaller on mobile */
+  .cert-seal {
+    margin-bottom: 1rem;
+  }
+
+  .seal-inner {
+    width: 64px;
+    height: 64px;
+    border-width: 3px;
+  }
+
+  .seal-text {
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .seal-sub {
+    font-size: 0.55rem;
+    letter-spacing: 1px;
+  }
+
+  /* Footer stays side by side but smaller */
+  .cert-footer {
+    padding-top: 1rem;
+  }
+
+  .cert-date-value {
+    font-size: 0.9rem;
+  }
+
+  .cert-date-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.5px;
+  }
+
+  .qr-wrapper {
+    padding: 0.25rem;
+  }
+
+  .qr-label {
+    font-size: 0.55rem;
   }
 }
 
-/* Extra small screens (< 360px) */
+/* Extra small screens */
 @media (max-width: 360px) {
   .certificate-inner {
     padding: 1rem 0.75rem;
   }
 
   .cert-name {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
   }
 
   .cert-quiz-title {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .seal-inner {
-    width: 60px;
-    height: 60px;
-  }
-
-  .seal-text {
-    font-size: 0.75rem;
+    width: 56px;
+    height: 56px;
   }
 }

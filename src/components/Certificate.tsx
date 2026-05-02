@@ -45,6 +45,14 @@ export default function Certificate({ userName, quiz, score, timeTaken }: Certif
               </div>
             )}
           </div>
+
+          {/* Seal - sits between body and footer */}
+          <div className="cert-seal">
+            <div className={`seal-inner ${quiz.topic.toLowerCase()}`}>
+              <span className="seal-text">{quiz.topic}</span>
+              <span className="seal-sub">Master</span>
+            </div>
+          </div>
           
           <div className="cert-footer">
             <div className="cert-date">
@@ -52,18 +60,11 @@ export default function Certificate({ userName, quiz, score, timeTaken }: Certif
               <span className="cert-date-label">Date Completed</span>
             </div>
             
-            <div className="cert-seal">
-              <div className={`seal-inner ${quiz.topic.toLowerCase()}`}>
-                <span className="seal-text">{quiz.topic}</span>
-                <span className="seal-sub">Master</span>
-              </div>
-            </div>
-            
             <div className="cert-qr">
               <div className="qr-wrapper">
                 <QRCodeSVG 
                   value="https://www.whatsapp.com/channel/0029Vb6GcAx42DccXkOfoW1h" 
-                  size={64} 
+                  size={56} 
                   bgColor="#ffffff" 
                   fgColor="#0f172a" 
                   level="L" 
